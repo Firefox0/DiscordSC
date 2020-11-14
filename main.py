@@ -18,7 +18,7 @@ def cleanup(directory):
     for e in os.listdir(directory):
         if ".chunk" in e:
             try:
-                os.remove(e)
+                os.remove(f"{directory}/{e}")
             except OSError:
                 print("Couldn't delete chunk file.")
                 return
@@ -56,21 +56,21 @@ def concatenate(input_directory, output_directory=None):
     if not output_directory:
         output_directory = os.getcwd()
     md5_hash = hashlib.md5()
-    with open(f"{output_directory}/header.json", "r") as header:
+    with open(f"{input_directory}/header.json", "r") as header:
         header_data = json.load(header)
     original_file_name = header_data["name"]
     original_md5_hash = header_data["md5"]
     final_file = open(f"{output_directory}/{original_file_name}", "ab")
     for f in os.listdir(input_directory):
         if ".chunk" in f:
-            with open(f, "rb") as chunk:
+            with open(f"{input_directory}/{f}", "rb") as chunk:
                 file_content = chunk.read()
                 final_file.write(file_content)
                 md5_hash.update(file_content)
     final_file.close()
     final_md5_hash = md5_hash.hexdigest()
     if final_md5_hash == original_md5_hash:
-        cleanup(output_directory)
+        cleanup(input_directory)
     else:
         try:
             os.remove(f"{output_directory}/{original_file_name}")
@@ -84,10 +84,11 @@ if __name__ == "__main__":
     parser.add_argument("--split", "-s", metavar="PATH", help="split file at specific path")
     parser.add_argument("--concatenate", "-c", metavar="DIRECTORY", help="directory containing header and chunk files")
     parser.add_argument("--nitro", "-n", action="store_true", help="Increase chunk size from 8MB to 50MB.")
+    parser.add_argument("--output", "-o", metavar="DIRECTORY", help="Choose output directory.")
     args = parser.parse_args()
     if args.split:
-        split(args.split, nitro=args.nitro)
+        split(args.split, args.output, args.nitro)
     elif args.concatenate:
-        concatenate(args.concatenate)
+        concatenate(args.concatenate, args.output)
     else:
         parser.error("Either --split/-s or --concatenate/-c is required")
