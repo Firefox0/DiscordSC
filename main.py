@@ -76,10 +76,10 @@ def concatenate(input_directory, output_directory=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--split", "-s", metavar="PATH", help="split file at specific path")
-    parser.add_argument("--concatenate", "-c", metavar="DIRECTORY", help="directory containing header and chunk files")
-    parser.add_argument("--nitro", "-n", action="store_true", help="Increase chunk size from 8MB to 50MB.")
-    parser.add_argument("--output", "-o", metavar="DIRECTORY", help="Choose output directory.")
+    parser.add_argument("-s", "--split", metavar="PATH", help="split file at specific path")
+    parser.add_argument("-c", "--concatenate", metavar="DIRECTORY", help="directory containing header and chunk files")
+    parser.add_argument("-n", "--nitro", action="store_true", help="Increase chunk size from 8MB to 50MB.")
+    parser.add_argument("-o", "--output", metavar="DIRECTORY", help="Choose output directory.")
     args = parser.parse_args()
     if args.split:
         split(args.split, args.output, args.nitro)
