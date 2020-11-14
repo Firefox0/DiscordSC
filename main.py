@@ -46,15 +46,17 @@ def concatenate(input_directory, output_directory=None):
     if not output_directory:
         output_directory = os.getcwd()
     md5_hash = hashlib.md5()
-    with open(f"{input_directory}/header.json", "r") as header:
+    header_path = f"{input_directory}/header.json"
+    with open(header_path, "r") as header:
         header_data = json.load(header)
     original_file_name = header_data["name"]
     original_md5_hash = header_data["md5"]
     original_length = header_data["length"]
-    all_files = [f"{input_directory}/header.json"]
+    all_files = [header_path]
     for i in range(1, original_length + 1):
         all_files.append(f"{input_directory}/{original_file_name}_{i}-{original_length}.chunk")
-    with open(f"{output_directory}/{original_file_name}", "ab") as output:
+    output_path = f"{output_directory}/{original_file_name}"
+    with open(output_path, "ab") as output:
         # without header file
         for e in all_files[1:]:
             with open(e, "rb") as chunk:
@@ -66,7 +68,7 @@ def concatenate(input_directory, output_directory=None):
         cleanup(all_files)
     else:
         try:
-            os.remove(f"{output_directory}/{original_file_name}")
+            os.remove(output_path)
         except OSError:
             print("Couldn't delete invalid output file.")
         print(f"Error while checking MD5 Hashes.\nOriginal Hash: {original_md5_hash}\nNew Hash: {final_md5_hash}")
