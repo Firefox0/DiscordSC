@@ -9,13 +9,12 @@ ITER_NITRO = 50
 
 
 def cleanup(files):
-    """ delete chunk and header files """
+    """ delete multiple files """
     for e in files:
         try:
             os.remove(e)
         except OSError as exception:
-            print(f"Couldn't delete file: {exception}")
-            return
+            print(f"Couldn't delete the file {e}: {exception}")
 
 
 def split(input_path, output_directory=None, nitro=False):
