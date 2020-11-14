@@ -3,8 +3,9 @@ import hashlib
 import argparse
 import json
 
-CHUNK_SIZE = 4096
-MAX_ITER = 2000
+CHUNK_SIZE = 1024 * 1024
+ITER_NORMAL = 8
+ITER_NITRO = 50
 
 
 def cleanup(directory):
@@ -23,18 +24,22 @@ def cleanup(directory):
                 return
 
 
-def split(input_path, output_directory=None):
+def split(input_path, output_directory=None, nitro=False):
     if not output_directory:
         output_directory = os.getcwd()
     md5_hash = hashlib.md5()
     file_name = os.path.basename(input_path)
     file_size = os.path.getsize(input_path)
-    amount_chunks = int(file_size / (CHUNK_SIZE * MAX_ITER)) + 1
+    if nitro:
+        max_iter = 50
+    else:
+        max_iter = 8
+    amount_chunks = int(file_size / (CHUNK_SIZE * max_iter)) + 1
     file_counter = 1
     with open(input_path, "rb") as f:
         for _ in range(amount_chunks):
             chunk = open(f"{output_directory}/{file_name}_{file_counter}-{amount_chunks}.chunk", "ab")
-            for _ in range(MAX_ITER):
+            for _ in range(max_iter):
                 if data := f.read(CHUNK_SIZE):
                     chunk.write(data)
                     md5_hash.update(data)
@@ -78,9 +83,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--split", "-s", metavar="PATH", help="split file at specific path")
     parser.add_argument("--concatenate", "-c", metavar="DIRECTORY", help="directory containing header and chunk files")
+    parser.add_argument("--nitro", "-n", action="store_true", help="Increase chunk size from 8MB to 50MB.")
     args = parser.parse_args()
     if args.split:
-        split(args.split)
+        split(args.split, nitro=args.nitro)
     elif args.concatenate:
         concatenate(args.concatenate)
     else:
