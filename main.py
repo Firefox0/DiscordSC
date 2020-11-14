@@ -4,8 +4,8 @@ import argparse
 import json
 
 CHUNK_SIZE = 1024 * 1024
-ITER_NORMAL = 8
-ITER_NITRO = 50
+LIMIT_NORMAL = 8
+LIMIT_NITRO = 50
 
 
 def cleanup(files):
@@ -23,10 +23,7 @@ def split(input_path, output_directory=None, nitro=False):
     md5_hash = hashlib.md5()
     file_name = os.path.basename(input_path)
     file_size = os.path.getsize(input_path)
-    if nitro:
-        max_iter = 50
-    else:
-        max_iter = 8
+    max_iter = LIMIT_NITRO if nitro else LIMIT_NORMAL
     amount_chunks = int(file_size / (CHUNK_SIZE * max_iter)) + 1
     file_counter = 1
     with open(input_path, "rb") as f:
